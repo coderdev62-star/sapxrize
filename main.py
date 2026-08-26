@@ -18,6 +18,7 @@ API_ID = int(os.getenv('API_ID'))
 API_HASH = os.getenv('API_HASH')
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 SESSION = os.getenv('SESSION', 'watcher_session')
+SESSION_STRING = os.getenv('SESSION_STRING')  # Строковая сессия для Render
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
 PORT = int(os.getenv('PORT', '8080'))
 PING_INTERVAL = int(os.getenv('PING_INTERVAL', '300'))  # 5 минут по умолчанию
@@ -138,8 +139,17 @@ async def main():
     init_db()
     
     # Создание клиентов
-    session_path = f"data/{SESSION}"
-    telethon_client = TelegramClient(session_path, API_ID, API_HASH)
+    if SESSION_STRING:
+        # Используем строковую сессию (для Render)
+        from telethon.sessions import StringSession
+        telethon_client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
+        logger.info("Используется строковая сессия")
+    else:
+        # Используем файловую сессию (локально)
+        session_path = f"data/{SESSION}"
+        telethon_client = TelegramClient(session_path, API_ID, API_HASH)
+        logger.info(f"Используется файловая сессия: {session_path}")
+    
     bot = TelegramBot(BOT_TOKEN)
     
     # Запуск бота

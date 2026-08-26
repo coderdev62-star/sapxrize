@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  spaxrize:
+    build: .
+    container_name: spaxrize
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env
+    environment:
+      - TZ=Europe/Moscow

@@ -103,12 +103,16 @@ class TelegramBot:
     async def edit_message_text(self, chat_id: int, message_id: int, text: str,
                                parse_mode: str = 'HTML', reply_markup: Optional[dict] = None) -> bool:
         """Редактирует текст сообщения."""
-        result = await self._request('editMessageText',
-                                     chat_id=chat_id,
-                                     message_id=message_id,
-                                     text=text,
-                                     parse_mode=parse_mode,
-                                     reply_markup=reply_markup)
+        params = {
+            'chat_id': chat_id,
+            'message_id': message_id,
+            'text': text,
+            'parse_mode': parse_mode
+        }
+        if reply_markup is not None:
+            params['reply_markup'] = reply_markup
+        
+        result = await self._request('editMessageText', **params)
         return result is not None
     
     async def edit_message_reply_markup(self, chat_id: int, message_id: int,

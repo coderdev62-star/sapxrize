@@ -68,15 +68,20 @@ class TelegramBot:
         """Отправляет фото (путь или file_id)."""
         if os.path.exists(photo):
             # Отправляем файл
-            data = {'chat_id': chat_id, 'caption': caption, 'parse_mode': parse_mode}
+            from aiohttp import FormData
+            
+            form = FormData()
+            form.add_field('chat_id', str(chat_id))
+            form.add_field('caption', caption)
+            form.add_field('parse_mode', parse_mode)
             if reply_markup:
-                data['reply_markup'] = json.dumps(reply_markup)
+                form.add_field('reply_markup', json.dumps(reply_markup))
             
             try:
                 with open(photo, 'rb') as f:
-                    files = {'photo': f}
+                    form.add_field('photo', f, filename='photo.png', content_type='image/png')
                     url = f"{self.api_url}/sendPhoto"
-                    async with self.session.post(url, data=data, files=files) as response:
+                    async with self.session.post(url, data=form) as response:
                         result = await response.json()
                         if result.get('ok'):
                             return result.get('result')

@@ -264,7 +264,7 @@ class TelegramBot:
         offset = 0
         
         # Задержка перед началом polling чтобы старые процессы успели завершиться
-        await asyncio.sleep(5)
+        await asyncio.sleep(30)
         
         while True:
             try:
@@ -306,8 +306,8 @@ class TelegramBot:
                 error_msg = str(e)
                 if 'Conflict' in error_msg:
                     # Conflict ошибка - ждем и пробуем снова
-                    logger.warning(f"Conflict detected, waiting 10s before retry...")
-                    await asyncio.sleep(10)
+                    logger.warning(f"Conflict detected, waiting 30s before retry...")
+                    await asyncio.sleep(30)
                     continue
                 else:
                     logger.error(f"Error getting updates: {e}")

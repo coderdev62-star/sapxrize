@@ -264,11 +264,16 @@ class TelegramBot:
         offset = 0
         
         # Задержка перед началом polling чтобы старые процессы успели завершиться
+        logger.info("Waiting 30s before starting polling...")
         await asyncio.sleep(30)
+        logger.info("Starting Bot API polling...")
         
         while True:
             try:
                 updates = await self.get_updates(offset=offset, timeout=30)
+                
+                if updates:
+                    logger.info(f"Received {len(updates)} updates")
                 
                 for update in updates:
                     offset = update['update_id'] + 1

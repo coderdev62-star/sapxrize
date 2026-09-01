@@ -27,4 +27,5 @@ RUN python generate_banner.py
 # Для продакшена лучше предварительно создать сессию и скопировать её
 
 # Запуск
+ENV WEB_CONCURRENCY=1
 CMD ["python", "main.py"]

@@ -280,33 +280,35 @@ class TelegramBot:
                         
                         if 'text' in message:
                             text = message['text']
-                            
+                            # Обработка команд
                             if text == '/start':
-                                await self.handle_command_start(chat_id, message_id)
+                                await self.send_message(chat_id, "🩸 SPAXRIZE Bot\n\nЭтот бот сохраняет сообщения из Telegram.", reply_markup={'inline_keyboard': [[{'text': '🩸 Добавить в автоматизацию', 'callback_data': 'activate'}]]})
                             elif text == '/status':
-                                await self.handle_command_status(chat_id)
+                                await self.send_message(chat_id, f"✅ Бот активен\nСессия: {self.api_url}")
                             elif text == '/test':
-                                await self.handle_command_test(chat_id)
+                                await notify_callback(chat_id, text="🧪 Тестовое уведомление")
+                                await self.send_message(chat_id, "🧪 Тестовое уведомление отправлено")
                             elif text == '/stop':
-                                await self.handle_command_stop(chat_id)
-                    
+                                await self.send_message(chat_id, "⛔ Бот остановлен")
+                                return
+                            
                     # Обработка callback query
                     elif 'callback_query' in update:
                         callback = update['callback_query']
-                        chat_id = callback['message']['chat']['id']
-                        message_id = callback['message']['message_id']
+                        chat_id = callback['from']['id']
                         callback_id = callback['id']
-                        data = callback.get('data', '')
+                        data = callback['data']
                         
-                        if data == 'watch:activate':
-                            await self.handle_callback_activate(chat_id, message_id)
-                        else:
-                            await self.answer_callback_query(callback_id)
-                
-                await asyncio.sleep(0.1)
-                
-            except asyncio.CancelledError:
-                break
+                        if data == 'activate':
+                            await self.handle_activation(chat_id, callback_id, notify_callback)
             except Exception as e:
-                logger.error(f"Ошибка обработки обновлений: {e}")
-                await asyncio.sleep(5)
+                error_msg = str(e)
+                if 'Conflict' in error_msg:
+                    # Conflict ошибка - ждем и пробуем снова
+                    logger.warning(f"Conflict detected, waiting 10s before retry...")
+                    await asyncio.sleep(10)
+                    continue
+                else:
+                    logger.error(f"Error getting updates: {e}")
+                    await asyncio.sleep(5)
+                    continue

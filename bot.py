@@ -262,6 +262,9 @@ class TelegramBot:
         """Обрабатывает обновления от Telegram."""
         offset = 0
         
+        # Задержка перед началом polling чтобы старые процессы успели завершиться
+        await asyncio.sleep(5)
+        
         while True:
             try:
                 updates = await self.get_updates(offset=offset, timeout=30)

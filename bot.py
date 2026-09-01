@@ -43,11 +43,12 @@ class TelegramBot:
                 if result.get('ok'):
                     return result.get('result')
                 else:
-                    logger.error(f"API Error: {result.get('description')}")
-                    return None
+                    error_desc = result.get('description', 'Unknown error')
+                    logger.error(f"API Error: {error_desc}")
+                    raise Exception(f"API Error: {error_desc}")
         except Exception as e:
             logger.error(f"Request error: {e}")
-            return None
+            raise
     
     async def get_updates(self, offset: int = 0, timeout: int = 30) -> list:
         """Получает обновления через long polling."""
